@@ -3,7 +3,7 @@
 codeium-jupyter/config.json
 
 # Python-generated files
-.ipynb_checkpoints/*
+notebook/.ipynb_checkpoints/*
 
 __pycache__/
 *.py[oc]
