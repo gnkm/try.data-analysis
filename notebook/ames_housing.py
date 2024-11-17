@@ -52,7 +52,7 @@ df_org.isnull().sum()
 # オリジナルと同じか確認
 
 # %%
-df_from_csv = pd.read_csv("data/ames-housing.tsv", sep="\t")
+df_from_csv = pd.read_csv("../data/ames-housing.tsv", sep="\t")
 
 # %%
 df_from_csv.shape
@@ -170,24 +170,25 @@ def objective(trial):
 # default sampler
 
 # %%
-study = optuna.create_study()
-study.optimize(objective, n_trials=10)
+study_default = optuna.create_study()
+study_default.optimize(objective, n_trials=10)
 
 # %%
-best_params = study.best_params
+best_params_default = study_default.best_params
 
 # %%
-print(f"{best_params = }")
+print(f"{best_params_default = }")
 
 # %%
-best_params["objective"] = "regression"
-best_params["verbose"] = -1
+best_params_default.update(
+    {"objective": "regression", "random_state": 42, "verbose": -1}
+)
 
 # %%
-estimator = lgb.LGBMRegressor(**best_params)
+estimator_default = lgb.LGBMRegressor(**best_params_default)
 
 # %%
-estimator.fit(
+estimator_default.fit(
     X_train,
     y_train,
     eval_set=[(X_test, y_test)],
@@ -196,7 +197,10 @@ estimator.fit(
 )
 
 # %%
-y_pred = estimator.predict(X_test)
+y_pred_default = estimator_default.predict(X_test)
 
 # %%
-r2_score(y_test, y_pred)
+r2_default = r2_score(y_test, y_pred_default)
+
+# %%
+print(f"{r2_default = }")
