@@ -464,6 +464,18 @@ wheels = [
 ]
 
 [[package]]
+name = "cmaes"
+version = "0.11.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/8f/29/86dc7d673dee33bb67b6d40d9809a6804658a2764ecd30bba201782c59d6/cmaes-0.11.1.tar.gz", hash = "sha256:cf71fa3679814723be771f2c9edd85f465b1bc1e409e1ad6d8a9e481efcd5160", size = 31439 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/06/c9/124823c5391ad69cf336fe482cd920fe485d96841ca43089c7316682fffc/cmaes-0.11.1-py3-none-any.whl", hash = "sha256:1de77d2175045389680619c1e9b6d59d90e7888524d9e440e1704ba001de9fcc", size = 35549 },
+]
+
+[[package]]
 name = "codeium-jupyter"
 version = "2.1.1"
 source = { registry = "https://pypi.org/simple" }
@@ -3399,6 +3411,7 @@ name = "sandbox"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "cmaes" },
     { name = "codeium-jupyter" },
     { name = "dask", extra = ["dataframe"] },
     { name = "ipywidgets" },
@@ -3420,6 +3433,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "cmaes", specifier = ">=0.11.1" },
     { name = "codeium-jupyter", specifier = ">=2.1.1" },
     { name = "dask", extras = ["dataframe"], specifier = ">=2024.11.2" },
     { name = "ipywidgets", specifier = ">=8.1.5" },

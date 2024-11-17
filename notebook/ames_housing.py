@@ -20,8 +20,14 @@
 import lightgbm as lgb
 import numpy as np
 import optuna
+import optunahub
 import pandas as pd
 import seaborn as sns
+from optuna.distributions import (
+    CategoricalDistribution,
+    FloatDistribution,
+    IntDistribution,
+)
 from sklearn.datasets import fetch_openml
 from sklearn.metrics import r2_score
 from sklearn.model_selection import cross_val_score, train_test_split
@@ -204,3 +210,77 @@ r2_default = r2_score(y_test, y_pred_default)
 
 # %%
 print(f"{r2_default = }")
+
+# %% [markdown]
+# CatCMA sampler
+
+
+# %%
+def objective_catcma(trial):
+    # params
+    params = {
+        "objective": "regression",
+        # "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.1),
+        "num_leaves": trial.suggest_int("num_leaves", 20, 50),
+        "min_data_in_leaf": trial.suggest_int("min_data_in_leaf", 10, 50),
+        "reg_alpha": trial.suggest_float("reg_alpha", 0.0, 1.0),
+        "reg_lambda": trial.suggest_float("reg_lambda", 0.0, 1.0),
+        "random_state": 42,
+    }
+    # evaluate
+    estimator = lgb.LGBMRegressor(**params)
+    scores = cross_val_score(estimator, X_train, y_train, cv=5)
+    return np.mean(scores)
+
+
+# %%
+mod = optunahub.load_module(
+    package="samplers/catcma",
+)
+CatCmaSampler = mod.CatCmaSampler
+
+# %%
+study_catcma = optuna.create_study(
+    sampler=CatCmaSampler(
+        search_space={
+            "learning_rate": FloatDistribution(0.01, 0.1),
+            "num_leaves": IntDistribution(20, 50),
+            "min_data_in_leaf": IntDistribution(10, 50),
+            "reg_alpha": FloatDistribution(0.0, 1.0),
+            "reg_lambda": FloatDistribution(0.0, 1.0),
+        }
+    )
+)
+study_catcma.optimize(objective_catcma, n_trials=10)
+
+# %%
+best_params_catcma = study_catcma.best_params
+
+# %%
+print(f"{best_params_catcma = }")
+
+# %%
+best_params_catcma.update(
+    {"objective": "regression", "random_state": 42, "verbose": -1}
+)
+
+# %%
+estimator_catcma = lgb.LGBMRegressor(**best_params_catcma)
+
+# %%
+estimator_catcma.fit(
+    X_train,
+    y_train,
+    eval_set=[(X_test, y_test)],
+    eval_metric="rmse",
+    callbacks=[lgb.early_stopping(stopping_rounds=20)],
+)
+
+# %%
+y_pred_catcma = estimator_catcma.predict(X_test)
+
+# %%
+r2_catcma = r2_score(y_test, y_pred_catcma)
+
+# %%
+print(f"{r2_catcma = }")
