@@ -17,7 +17,15 @@ brew install libomp
 ## 使い方
 
 ```
+cp .env.sample .env
+```
+
+```
 vim .env
+```
+
+```
+uv sync
 ```
 
 ```
